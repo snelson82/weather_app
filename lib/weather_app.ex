@@ -26,7 +26,82 @@ defmodule WeatherApp do
   Salt Lake City Average Max Temp: 40.46
 
   """
-  def hello do
-    :world
+
+  # Initial portion of API URL
+  @base_api_url :"https://www.metaweather.com/api/location/"
+
+  # Set of location names (for output) and metaweather location IDs
+  @weather_locations %{
+    "Boise": "2366355",
+    "Los Angeles": "2442047",
+    "Salt Lake City": "2487610"
+  }
+
+  ############
+  #  PUBLIC  #
+  ############
+
+  @spec generate_average_max_temps :: list
+  def generate_average_max_temps do
+    Enum.map(@weather_locations, fn {_, location} ->
+      Task.async(fn ->
+        fetch_api_data(location)
+        |> Jason.decode!()
+        |> handler_minion()
+      end)
+    end)
+    |> Enum.map(fn task -> Task.await(task) end)
+  end
+
+  #############
+  #  PRIVATE  #
+  #############
+
+  # Gathers weather API data (JSON) for a given location
+  defp fetch_api_data(location_id) do
+    case HTTPoison.get("#{@base_api_url}#{location_id}", [], follow_redirect: true) do
+      # successful fetch
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        body
+
+      # location not found
+      {:ok, %HTTPoison.Response{status_code: 404}} ->
+        IO.puts("Location #{location_id} not found!")
+
+      # error
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        IO.inspect(reason)
+    end
+  end
+
+  # Combines list values for single sum
+  @spec list_sum(any) :: any
+  defp list_sum(list), do: Enum.reduce(list, 0, &(&1 + &2))
+
+  # Average for list of floats
+  @spec list_average(any) :: float
+  defp list_average(floaters), do: list_sum(floaters) / Enum.count(floaters)
+
+  # Converts Celsius temperatures to Fahrenheit
+  @spec fahrenheit_conversion(any) :: float
+  defp fahrenheit_conversion(temperature), do: temperature * 9 / 5 + 32
+
+  # Rounds float to be double precision
+  @spec float_rounder(any) :: float
+  defp float_rounder(val), do: round(val * 100) / 100
+
+  # STDOUT output for locations and their average max temperature
+  defp average_max_temperature_output(average_max_temperature, name) do
+    IO.puts("#{name} Average Max Temp: #{average_max_temperature}")
+  end
+
+  # Generates 6-day average max temperature as double precision float (Fahrenheit) and sends value to output function
+  defp handler_minion(api_response) do
+    api_response["consolidated_weather"]
+    |> get_in([Access.all(), "max_temp"])
+    |> list_average()
+    |> fahrenheit_conversion()
+    |> float_rounder()
+    |> average_max_temperature_output(api_response["title"])
   end
 end
