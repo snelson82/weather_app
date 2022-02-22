@@ -21,8 +21,3 @@ Using the MetaWeather API and Elixir (<https://www.metaweather.com/api/>) this a
 Tests, including a mock of metaweather's API, have been added to ensure accurate output and valid metaweather API location endpoints (unlike the `Not A Real Place` example location).
 
 To run the test, simply run `mix test`
-
-      Location "Not A Real Place" not found!
-      Los Angeles Average Max Temp: 65.67
-      Salt Lake City Average Max Temp: 38.92
-      Boise Average Max Temp: 39.75
