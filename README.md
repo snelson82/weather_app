@@ -11,7 +11,6 @@ Using the MetaWeather API and Elixir (<https://www.metaweather.com/api/>) this a
 - Run the application via `WeatherApp.forecast_summary`
 - Example output
 
-      => Location "Not A Real Place" not found!
       Los Angeles Average Max Temp: 67.49
       Boise Average Max Temp: 33.99
       Salt Lake City Average Max Temp: 32.83

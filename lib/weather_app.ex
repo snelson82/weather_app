@@ -24,7 +24,6 @@ defmodule WeatherApp do
 
   iex> WeatherApp.forecast_summary
 
-  => Location "Not A Real Place" not found!
   Salt Lake City Average Max Temp: 38.92
   Boise Average Max Temp: 39.75
   Los Angeles Average Max Temp: 65.67
@@ -35,10 +34,9 @@ defmodule WeatherApp do
 
   # Set of location names (for output) and metaweather location IDs
   @weather_locations %{
-    Boise: "2366355",
+    "Boise": "2366355",
     "Los Angeles": "2442047",
-    "Salt Lake City": "2487610",
-    "Not A Real Place": "243875983216541268"
+    "Salt Lake City": "2487610"
   }
 
   ############
@@ -50,10 +48,6 @@ defmodule WeatherApp do
     generate_average_max_temps(@weather_locations)
   end
 
-  #############
-  #  PRIVATE  #
-  #############
-
   # Sets up async work to iterate over each a map of cities provided, %{"city name": "location_id"}
   @spec generate_average_max_temps(any) :: list
   def generate_average_max_temps(cities) do
@@ -62,6 +56,10 @@ defmodule WeatherApp do
     end)
     |> Enum.map(fn task -> Task.await(task) end)
   end
+
+  #############
+  #  PRIVATE  #
+  #############
 
   # Gathers weather API data (JSON) for a given location
   defp fetch_api_data(location_name, location_id) do
