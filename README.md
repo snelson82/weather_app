@@ -8,9 +8,21 @@ Using the MetaWeather API and Elixir (<https://www.metaweather.com/api/>) this a
   - `mix deps.get`
 - Load IEX console
   - `iex -S mix`
-- Run the application via `WeatherApp.generate_average_max_temps`
+- Run the application via `WeatherApp.forecast_summary`
 - Example output
 
-      Boise Average Max Temp: 42.1
-      Los Angeles Average Max Temp: 68.36
-      Salt Lake City Average Max Temp: 40.46
+      => Location "Not A Real Place" not found!
+      Los Angeles Average Max Temp: 67.49
+      Boise Average Max Temp: 33.99
+      Salt Lake City Average Max Temp: 32.83
+
+## Testing
+
+Tests, including a mock of metaweather's API, have been added to ensure accurate output and valid metaweather API location endpoints (unlike the `Not A Real Place` example location).
+
+To run the test, simply run `mix test`
+
+      Location "Not A Real Place" not found!
+      Los Angeles Average Max Temp: 65.67
+      Salt Lake City Average Max Temp: 38.92
+      Boise Average Max Temp: 39.75
