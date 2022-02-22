@@ -8,7 +8,7 @@ Using the MetaWeather API and Elixir (<https://www.metaweather.com/api/>) this a
   - `mix deps.get`
 - Load IEX console
   - `iex -S mix`
-- Run the application via `WeatherApp.forecast_summary`
+- Run the application via `WeatherApp.max_temp_generate(["2366355", "2442047", "2487610"])`
 - Example output
 
       Los Angeles Average Max Temp: 67.49
@@ -17,6 +17,6 @@ Using the MetaWeather API and Elixir (<https://www.metaweather.com/api/>) this a
 
 ## Testing
 
-Tests, including a mock of metaweather's API, have been added to ensure accurate output and valid metaweather API location endpoints (unlike the `Not A Real Place` example location).
+Tests have been added to ensure accurate output and valid metaweather API location endpoints. Each location ID passed will either output averaged max temperature data or alert to nonexistent locations.
 
 To run the test, simply run `mix test`

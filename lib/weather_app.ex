@@ -16,13 +16,12 @@ defmodule WeatherApp do
   - Find the average of max_temp for all forecasts for the city
   """
 
-  @spec forecast_summary :: list
   @doc ~S"""
   Retrieves weather data for three locations, then outputs the average maximum temperature (in Fahrenheit) for each location
 
   ## Examples
 
-  iex> WeatherApp.forecast_summary
+  iex> WeatherApp.max_temp_generate(["2366355", "2442047", "2487610"])
 
   Salt Lake City Average Max Temp: 38.92
   Boise Average Max Temp: 39.75
@@ -32,27 +31,16 @@ defmodule WeatherApp do
   # Initial portion of API URL
   @base_api_url :"https://www.metaweather.com/api/location/"
 
-  # Set of location names (for output) and metaweather location IDs
-  @weather_locations %{
-    "Boise": "2366355",
-    "Los Angeles": "2442047",
-    "Salt Lake City": "2487610"
-  }
-
   ############
   #  PUBLIC  #
   ############
 
-  # Main method to fetch, parse, and output formatted weather data
-  def forecast_summary do
-    generate_average_max_temps(@weather_locations)
-  end
-
   # Sets up async work to iterate over each a map of cities provided, %{"city name": "location_id"}
-  @spec generate_average_max_temps(any) :: list
-  def generate_average_max_temps(cities) do
-    Enum.map(cities, fn {location_name, location_id} ->
-      Task.async(fn -> fetch_api_data(location_name, location_id) end)
+
+  @spec max_temp_generate(any) :: list
+  def max_temp_generate(cities) do
+    Enum.map(cities, fn location_id ->
+      Task.async(fn -> fetch_api_data(location_id) end)
     end)
     |> Enum.map(fn task -> Task.await(task) end)
   end
@@ -62,17 +50,17 @@ defmodule WeatherApp do
   #############
 
   # Gathers weather API data (JSON) for a given location
-  defp fetch_api_data(location_name, location_id) do
+  defp fetch_api_data(location_id) do
     case HTTPoison.get("#{@base_api_url}#{location_id}", [], follow_redirect: true) do
       # successful fetch
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
         body
         |> Jason.decode!()
-        |> handler_minion()
+        |> response_handler()
 
       # location not found
       {:ok, %HTTPoison.Response{status_code: 404}} ->
-        IO.puts("=> Location \"#{location_name}\" not found!")
+        IO.puts("=> Location \"#{location_id}\" not found!")
 
       # error
       {:error, %HTTPoison.Error{reason: reason}} ->
@@ -98,7 +86,7 @@ defmodule WeatherApp do
   end
 
   # Generates 6-day average max temperature as double precision float (Fahrenheit) and sends value to output function
-  defp handler_minion(api_response) do
+  defp response_handler(api_response) do
     api_response["consolidated_weather"]
     |> get_in([Access.all(), "max_temp"])
     |> list_average()
